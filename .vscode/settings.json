@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "localebase": "c",
+        "locale": "c",
+        "type_traits": "c",
+        "deque": "c",
+        "vector": "c",
+        "kai_lvec": "c",
+        "map": "c",
+        "queue": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "kai_bitvector": "c"
+    }
+}
