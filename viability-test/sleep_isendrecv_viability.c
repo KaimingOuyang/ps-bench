@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-/* assume 0, 1 are on the same node, 2, 3 is on different node
- * Rank 0 issues isend to rank 2, and rank 2 performs irecv and sleep.
+/* assume 0, 2 are on the same node, 1, 3 is on different node
+ * Rank 0 issues isend to rank 1, and rank 1 performs irecv and sleep.
  */
 void progress_stealing_test(int rank, int buf_sz, int sleep_time){
     char *buf;
@@ -15,7 +15,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
     MPI_Barrier(MPI_COMM_WORLD);
     
     /* warm up */
-    if(rank == 2) {
+    if(rank == 1) {
         int origin = 0;
         MPI_Request req;
         MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, MPI_COMM_WORLD, &req);
@@ -27,14 +27,14 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
             }
         }
     }else if(rank == 0) {
-        int target = 2;
+        int target = 1;
         // for(int i = 0; i < issue_time; ++i)
         MPI_Send(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    if(rank == 2) {
+    if(rank == 1) {
         int origin = 0;
         MPI_Request req;
         MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, MPI_COMM_WORLD, &req);
@@ -46,7 +46,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
             }
         }
     }else if(rank == 0) {
-        int target = 2;
+        int target = 1;
         // for(int i = 0; i < issue_time; ++i)
         double time = MPI_Wtime();
         MPI_Send(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD);

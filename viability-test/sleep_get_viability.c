@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-/* assume 0, 1 are on the same node, 2, 3 is on different node
- * Rank 0 issues MPI_Get to rank 2, and rank 2 performs sleep.
+/* assume 0, 2 are on the same node, 1, 3 is on different node
+ * Rank 0 issues MPI_Get to rank 1, and rank 1 performs sleep.
  */
 void progress_stealing_test(int rank, int buf_sz, int sleep_time){
     char *winbuf;
@@ -17,7 +17,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
     MPI_Win_lock_all(MPI_MODE_NOCHECK, win);
     
     /* warm up */
-    if(rank == 2) {
+    if(rank == 1) {
         int origin = 0;
         usleep(sleep_time);
         for(int i = 0; i < buf_sz; ++i){
@@ -26,7 +26,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
             }
         }
     }else if(rank == 0) {
-        int target = 2;
+        int target = 1;
         // for(int i = 0; i < issue_time; ++i)
         MPI_Get(winbuf, buf_sz, MPI_CHAR, target, 0, buf_sz, MPI_CHAR, win);
         MPI_Win_flush(0, win);
@@ -34,7 +34,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    if(rank == 2) {
+    if(rank == 1) {
         int origin = 0;
         usleep(sleep_time);
         for(int i = 0; i < buf_sz; ++i){
@@ -43,7 +43,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time){
             }
         }
     }else if(rank == 0) {
-        int target = 2;
+        int target = 1;
         double time = MPI_Wtime();
         // for(int i = 0; i < issue_time; ++i)
         MPI_Get(winbuf, buf_sz, MPI_CHAR, target, 0, buf_sz, MPI_CHAR, win);
