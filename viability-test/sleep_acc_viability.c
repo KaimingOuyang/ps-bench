@@ -9,13 +9,13 @@
 void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter) {
     char *winbuf;
     MPI_Win win;
+    assert(iter < 128);
 
     MPI_Win_allocate(buf_sz, sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &winbuf, &win);
     memset(winbuf, rank + 1, buf_sz);
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Win_lock_all(MPI_MODE_NOCHECK, win);
-
     int origin = 0;
     int target = 1;
     /* warm up */
@@ -44,12 +44,14 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter) {
     /* other processes do nothing */
     MPI_Barrier(MPI_COMM_WORLD);
 
-    if(rank == target)
+    if(rank == target){
+        char ans = ((origin + 1) * iter + rank) * 2;
         for(int i = 0; i < buf_sz; ++i) {
-            if(winbuf[i] != (origin + 1) * iter) {
-                printf("Error: winbuf[%d] = %d is not %d\n", i, winbuf[i], target);
+            if(winbuf[i] != ans) {
+                printf("Error: winbuf[%d] = %d is not %d\n", i, winbuf[i], ans);
             }
         }
+    }
     MPI_Win_unlock_all(win);
     MPI_Win_free(&win);
     return;
