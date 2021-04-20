@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
         rec_cblas_times[k] = max_cblas;
         rec_times[k] = max_time;
     }
-    MPI_Win_unlock_all(inter_local_buf_s2);
+    MPI_Win_unlock_all(inter_numa_win_s2);
 
     free(inter_local_buf_s2);
     MPI_Win_free(&inter_numa_win_s2);
