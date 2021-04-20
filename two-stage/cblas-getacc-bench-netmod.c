@@ -343,9 +343,9 @@ int main(int argc, char *argv[])
     free(inter_local_buf_s1);
     MPI_Win_free(&inter_numa_win_s1);
 
-    /***********/
+    /**********************************/
     /* stage 2 */
-    /***********/
+    /**********************************/
     /* warm up run */
     char *inter_local_buf_s2 = malloc(buf_sz_s2);
     memset(inter_local_buf_s2, 0, buf_sz_s2);
@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
                 comm_time = MPI_Wtime();
                 for (int i = 0; i < buf_sz_s2; i += block)
                     MPI_Accumulate(inter_local_buf_s2 + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, MPI_SUM, inter_numa_win_s2);
-                MPI_Win_flush_all(inter_numa_win_s1);
+                MPI_Win_flush_all(inter_numa_win_s2);
                 comm_time = MPI_Wtime() - comm_time;
             }
         }
