@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 /* assume 0, 2 are on the same node, 1, 3 is on different node
  * Rank 0 issues MPI_Accumulate to rank 1, and rank 1 performs sleep.
  */
