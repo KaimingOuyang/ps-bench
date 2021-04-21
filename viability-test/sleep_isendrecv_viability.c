@@ -49,7 +49,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     /* other processes do nothing */
     MPI_Barrier(MPI_COMM_WORLD);
     int max_total;
-    MPI_Reduce(&total, &max_total, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&total, &max_total, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     if(rank == 0){
         printf("%d %.3lf %.3lf %d\n", buf_sz, max_total * 1e6, tcomm * 1e6, sleep_time);
     }
