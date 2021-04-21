@@ -435,6 +435,23 @@ int main(int argc, char *argv[])
     }
     MPI_Win_unlock_all(inter_numa_win_s2);
 
+    if (rank == 0)
+    {
+        double ave_time = 0.0, ave_comm_time = 0.0, ave_cblas_time = 0.0;
+        for (int k = 0; k < AVE_ITERATION; ++k)
+        {
+            ave_time += rec_times[k];
+            ave_comm_time += rec_comm_times[k];
+            ave_cblas_time += rec_cblas_times[k];
+            //printf("Iter %d - total time %.3lf, comm %.3lf, sleep %.3lf\n", k, rec_times[k] * 1e6, rec_comm_times[k] * 1e6, rec_cblas_times[k] * 1e6);
+        }
+
+        ave_time = ave_time / AVE_ITERATION;
+        ave_comm_time = ave_comm_time / AVE_ITERATION;
+        ave_cblas_time = ave_cblas_time / AVE_ITERATION;
+        printf("2 %.3lf %.3lf %.3lf\n", ave_time * 1e6, ave_comm_time * 1e6, ave_cblas_time * 1e6);
+    }
+
     free(inter_local_buf_s2);
     MPI_Win_free(&inter_numa_win_s2);
     MPI_Comm_free(&intra_numa_comm);
