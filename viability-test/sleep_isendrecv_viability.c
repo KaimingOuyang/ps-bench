@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-/* assume 0, 2 are on the same node, 1, 3 is on different node
+/* assume 0, 1, 2 and 3 are on the same node
  * Rank 0 issues isend to rank 1, and rank 1 performs irecv and sleep.
  */
 void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){

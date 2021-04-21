@@ -12,7 +12,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter) {
     MPI_Win win;
     assert(iter < 128);
 
-    MPI_Win_allocate(buf_sz, sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &winbuf, &win);
+    MPI_Win_allocate(buf_sz, 1, MPI_INFO_NULL, MPI_COMM_WORLD, &winbuf, &win);
     memset(winbuf, rank + 1, buf_sz);
     MPI_Barrier(MPI_COMM_WORLD);
 
