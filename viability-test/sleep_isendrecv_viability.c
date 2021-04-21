@@ -45,8 +45,8 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
         tcomm = MPI_Wtime();
         for(int i = 0; i < iter; ++i)
             MPI_Isend(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD, &reqs[i]);
-        tcomm = MPI_Wtime() - tcomm;
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
+        tcomm = MPI_Wtime() - tcomm;
     }
     total = MPI_Wtime() - total;
     
