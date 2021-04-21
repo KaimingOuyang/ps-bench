@@ -24,8 +24,10 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
+        MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         for(int i = 0; i < iter; ++i)
-            MPI_Send(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD);
+            MPI_Isend(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD, &reqs[i]);
+        MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -39,10 +41,12 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
+        MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         tcomm = MPI_Wtime();
         for(int i = 0; i < iter; ++i)
-            MPI_Send(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD);
+            MPI_Isend(buf, buf_sz, MPI_CHAR, target, 0, MPI_COMM_WORLD, &reqs[i]);
         tcomm = MPI_Wtime() - tcomm;
+        MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }
     total = MPI_Wtime() - total;
     
