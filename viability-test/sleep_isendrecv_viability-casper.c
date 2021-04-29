@@ -11,6 +11,14 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     MPI_Win win;
     MPI_Comm shm_comm, comm_world;
     MPI_Info info = MPI_INFO_NULL;
+    int total_buf_sz = buf_sz << 1;
+
+    buf = (char *) malloc(total_buf_sz);
+
+
+    MPI_Datatype recv_type;
+    MPI_Type_vector(buf_sz, 1, 2, MPI_CHAR, &recv_type);
+    MPI_Type_commit(&recv_type);
 
     MPI_Info_create(&info);
     MPI_Info_set(info, (char *) "shmbuf_regist", (char *) "true");
@@ -18,9 +26,9 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, rank, info, &shm_comm);
     MPI_Info_free(&info);
 
-    MPI_Win_allocate_shared(buf_sz, 1, MPI_INFO_NULL, shm_comm, &buf, &win);
+    MPI_Win_allocate_shared(total_buf_sz, 1, MPI_INFO_NULL, shm_comm, &buf, &win);
 
-    memset(buf, rank, buf_sz);
+    memset(buf, rank, total_buf_sz);
 
     MPI_Info_create(&info);
     MPI_Info_set(info, (char *) "wildcard_used", (char *) "none");
@@ -36,7 +44,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     if(rank == target) {
         MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         for(int i = 0; i < iter; ++i)
-            MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, comm_world, &reqs[i]);
+            MPI_Irecv(buf, 1, recv_type, origin, 0, comm_world, &reqs[i]);
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
@@ -53,7 +61,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     if(rank == target) {
         MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         for(int i = 0; i < iter; ++i)
-            MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, comm_world, &reqs[i]);
+            MPI_Irecv(buf, 1, recv_type, origin, 0, comm_world, &reqs[i]);
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
@@ -75,7 +83,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     }
 
     if(rank == target){
-        for(int i = 0; i < buf_sz; ++i) {
+        for(int i = 0; i < buf_sz; i += 2) {
             if(buf[i] != origin) {
                 printf("Error: winbuf[%d] = %d is not %d\n", i, buf[i], origin);
             }
@@ -84,6 +92,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     MPI_Win_free(&win);
     MPI_Comm_free(&comm_world);
     MPI_Comm_free(&shm_comm);
+    MPI_Type_free(&recv_type);
     return;
 }
 

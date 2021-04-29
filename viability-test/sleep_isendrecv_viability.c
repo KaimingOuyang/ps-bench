@@ -9,18 +9,23 @@
 void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     char *buf;
     MPI_Win win;
+    int total_buf_sz = buf_sz << 1;
 
-    buf = (char *) malloc(buf_sz);
-    memset(buf, rank, buf_sz);
+    buf = (char *) malloc(total_buf_sz);
+    memset(buf, rank, total_buf_sz);
     MPI_Barrier(MPI_COMM_WORLD);
     
+    MPI_Datatype recv_type;
+    MPI_Type_vector(buf_sz, 1, 2, MPI_CHAR, &recv_type);
+    MPI_Type_commit(&recv_type);
+
     int origin = 0;
     int target = 1;
     /* warm up */
     if(rank == target) {
         MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         for(int i = 0; i < iter; ++i)
-            MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, MPI_COMM_WORLD, &reqs[i]);
+            MPI_Irecv(buf, 1, recv_type, origin, 0, MPI_COMM_WORLD, &reqs[i]);
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
@@ -37,7 +42,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     if(rank == target) {
         MPI_Request *reqs = (MPI_Request *) malloc(sizeof(MPI_Request) * iter);
         for(int i = 0; i < iter; ++i)
-            MPI_Irecv(buf, buf_sz, MPI_CHAR, origin, 0, MPI_COMM_WORLD, &reqs[i]);
+            MPI_Irecv(buf, 1, recv_type, origin, 0, MPI_COMM_WORLD, &reqs[i]);
         usleep(sleep_time);
         MPI_Waitall(iter, reqs, MPI_STATUSES_IGNORE);
     }else if(rank == origin) {
@@ -59,12 +64,14 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter){
     }
 
     if(rank == target){
-        for(int i = 0; i < buf_sz; ++i) {
+        for(int i = 0; i < total_buf_sz; i += 2) {
             if(buf[i] != origin) {
                 printf("Error: winbuf[%d] = %d is not %d\n", i, buf[i], origin);
             }
         }
     }
+
+    MPI_Type_free(&recv_type);
     return;
 }
 
