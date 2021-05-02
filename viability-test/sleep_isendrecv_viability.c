@@ -69,7 +69,7 @@ void progress_stealing_test(int rank, int buf_sz, int sleep_time, int iter) {
     }
 
     if(rank == target) {
-        for(int i = 0; i < total_buf_sz; i += 2) {
+        for(int i = 0; i < total_buf_sz; i += stride) {
             if(buf[i] != origin) {
                 printf("Error: winbuf[%d] = %d is not %d\n", i, buf[i], origin);
             }
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     int buf_sz = atoi(argv[1]);
     int sleep_time = atoi(argv[2]);
     int iter = atoi(argv[3]);
-    if(argc == 4) {
+    if(argc == 5) {
         stride = atoi(argv[4]);
     }
     // char hostname[64];
