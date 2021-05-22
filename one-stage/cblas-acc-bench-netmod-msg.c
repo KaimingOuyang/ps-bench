@@ -284,9 +284,11 @@ int main(int argc, char *argv[])
 
         MPI_Win_free(&inter_numa_win);
         free(inter_local_buf);
-        free(a);
-        free(b);
-        free(c);
+        if(intra_numa_rank >= step){
+            free(a);
+            free(b);
+            free(c);
+        }
     }
 
     MPI_Comm_free(&intra_numa_comm);
