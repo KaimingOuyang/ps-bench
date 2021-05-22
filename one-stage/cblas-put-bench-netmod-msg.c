@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < buf_sz; i += block)
                 {
-                    //MPI_Get(intra_local_buf + i, block, MPI_CHAR, share_peer, i, block, MPI_CHAR, intra_numa_win);
-                    MPI_Accumulate(inter_local_buf + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, MPI_BXOR, inter_numa_win);
+                    MPI_Put(inter_local_buf + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, inter_numa_win);
+                    // MPI_Accumulate(inter_local_buf + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, MPI_BXOR, inter_numa_win);
                 }
                 //MPI_Win_flush_all(intra_numa_win);
                 MPI_Win_flush_all(inter_numa_win);
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < buf_sz; i += block)
                 {
-                    MPI_Accumulate(inter_local_buf + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, MPI_BXOR, inter_numa_win);
+                    MPI_Put(inter_local_buf + i, block, MPI_CHAR, inter_peer, i, block, MPI_CHAR, inter_numa_win);
                 }
                 MPI_Win_flush_all(inter_numa_win);
                 //assert(check_results(intra_local_buf, inter_local_buf, buf_sz) == 0);
