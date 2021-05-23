@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         int total_message_cnt = message_cnt * COMMPROC_PER_NUMA;
 
         if(intra_numa_rank < step) {
-            int cur_commproc = intra_numa_size / 2;
+            int cur_commproc = COMMPROC_PER_NUMA;
             actual_message_cnt = total_message_cnt * (intra_numa_rank + 1) / cur_commproc - total_message_cnt * intra_numa_rank / cur_commproc;
             buf_sz = block * actual_message_cnt;
             // printf("rank %d, numa rank %d - total message %d, issue %d\n", rank, intra_numa_rank, total_message_cnt, actual_message_cnt);

@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         int total_message_cnt = message_cnt * COMMPROC_PER_NUMA;
 
         if(intra_numa_rank < step) {
-            int cur_commproc = intra_numa_size / 2;
+            int cur_commproc = COMMPROC_PER_NUMA;
             actual_message_cnt = total_message_cnt * (intra_numa_rank + 1) / cur_commproc - total_message_cnt * intra_numa_rank / cur_commproc;
             buf_sz = block * actual_message_cnt;
             // printf("rank %d, numa rank %d - total message %d, issue %d\n", rank, intra_numa_rank, total_message_cnt, actual_message_cnt);
@@ -197,9 +197,9 @@ int main(int argc, char *argv[])
                 for(int sender = 0; sender < step; ++sender){
                     int intra_dest = step + sender % num_numa_worker;
                     if(intra_dest == intra_numa_rank) {
-                        int inter_peer;
+                        int inter_peer = sender;
                         if (inter_numa_rank < intra_numa_size){
-                            inter_peer = sender + intra_numa_size;
+                            inter_peer = intra_numa_size;
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
@@ -257,9 +257,9 @@ int main(int argc, char *argv[])
                 for(int sender = 0; sender < step; ++sender){
                     int intra_dest = step + sender % num_numa_worker;
                     if(intra_dest == intra_numa_rank) {
-                        int inter_peer;
+                        int inter_peer = sender;
                         if (inter_numa_rank < intra_numa_size){
-                            inter_peer = sender + intra_numa_size;
+                            inter_peer = intra_numa_size;
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
