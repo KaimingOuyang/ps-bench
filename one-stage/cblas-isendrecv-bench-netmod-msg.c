@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                     if(intra_dest == intra_numa_rank) {
                         int inter_peer = sender;
                         if (inter_numa_rank < intra_numa_size){
-                            inter_peer = intra_numa_size;
+                            inter_peer += intra_numa_size;
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
                     if(intra_dest == intra_numa_rank) {
                         int inter_peer = sender;
                         if (inter_numa_rank < intra_numa_size){
-                            inter_peer = intra_numa_size;
+                            inter_peer += intra_numa_size;
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
