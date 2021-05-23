@@ -266,15 +266,19 @@ int main(int argc, char *argv[])
                             MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_node_numa_comm, &rreqs[sender_cnt-1][i]);
                     }   
                 }
-                    
+                
+                cblas_time = MPI_Wtime();
                 /* do dummy compute */
                 for(int i = 0; i < actual_wcnt; ++i)
                     cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, dim, dim, dim, 1.0, a + i * dim * dim, dim, b + i * dim * dim, dim, 1.0, c + i * dim * dim, dim);
+                cblas_time = MPI_Wtime() - cblas_time;
 
+                comm_time = MPI_Wtime();
                 for(int sender_id = 0; sender_id < sender_cnt; ++sender_id){
                         MPI_Waitall(actual_message_cnt, rreqs[sender_id], MPI_STATUSES_IGNORE);
                         free(rreqs[sender_id]);
                 }
+                comm_time = MPI_Wtime() - comm_time;
                 free(rreqs);
             }
 
