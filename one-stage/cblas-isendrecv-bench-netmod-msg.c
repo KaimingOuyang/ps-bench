@@ -166,17 +166,8 @@ int main(int argc, char *argv[])
             // printf("rank %d, numa rank %d - total wcnt %d, my wcnt %d\n", rank, intra_numa_rank, total_wcnt, actual_wcnt);
         }
 
-        void *inter_win_ptr;
-        MPI_Win inter_numa_win;
-        MPI_Win_allocate(buf_sz, 1, MPI_INFO_NULL, inter_node_numa_comm, (void *)&inter_win_ptr, &inter_numa_win);
-
-        memset(inter_win_ptr, BUF_INIT_VALUE, buf_sz);
-        MPI_Barrier(MPI_COMM_WORLD);
-
         char *inter_local_buf = malloc(buf_sz);
         memset(inter_local_buf, 0, buf_sz);
-
-        MPI_Win_lock_all(MPI_MODE_NOCHECK, inter_numa_win);
 
         int num_numa_worker = intra_numa_size - step;
 
@@ -192,7 +183,7 @@ int main(int argc, char *argv[])
 
                 MPI_Request *sreqs = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                 for (int i = 0; i < actual_message_cnt; i++) {
-                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, intra_numa_comm, &sreqs[i]);
+                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &sreqs[i]);
                 }
                 MPI_Waitall(actual_message_cnt, sreqs, MPI_STATUSES_IGNORE);
                 free(sreqs);
@@ -212,7 +203,7 @@ int main(int argc, char *argv[])
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
-                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, intra_numa_comm, &rreqs[sender_cnt-1][i]);
+                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &rreqs[sender_cnt-1][i]);
                     }   
                 }
                     
@@ -252,7 +243,7 @@ int main(int argc, char *argv[])
 
                 MPI_Request *sreqs = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                 for (int i = 0; i < actual_message_cnt; i++) {
-                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, intra_numa_comm, &sreqs[i]);
+                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &sreqs[i]);
                 }
                 MPI_Waitall(actual_message_cnt, sreqs, MPI_STATUSES_IGNORE);
                 free(sreqs);
@@ -272,7 +263,7 @@ int main(int argc, char *argv[])
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
-                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, intra_numa_comm, &rreqs[sender_cnt-1][i]);
+                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &rreqs[sender_cnt-1][i]);
                     }   
                 }
                     
@@ -295,8 +286,6 @@ int main(int argc, char *argv[])
             rec_cblas_times[k] = max_cblas;
             rec_times[k] = max_time;
         }
-
-        MPI_Win_unlock_all(inter_numa_win);
 
         if (rank == 0)
         {
@@ -322,7 +311,6 @@ int main(int argc, char *argv[])
             printf("%d %.3lf %.3lf %.3lf\n", block, ave_time * 1e6, ave_comm_time * 1e6, ave_cblas_time * 1e6);
         }
 
-        MPI_Win_free(&inter_numa_win);
         free(inter_local_buf);
         if(intra_numa_rank >= step) {
             free(a);
