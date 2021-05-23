@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
                 MPI_Request *sreqs = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                 for (int i = 0; i < actual_message_cnt; i++) {
-                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &sreqs[i]);
+                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_node_numa_comm, &sreqs[i]);
                 }
                 MPI_Waitall(actual_message_cnt, sreqs, MPI_STATUSES_IGNORE);
                 free(sreqs);
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
-                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &rreqs[sender_cnt-1][i]);
+                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_node_numa_comm, &rreqs[sender_cnt-1][i]);
                     }   
                 }
                     
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 
                 MPI_Request *sreqs = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                 for (int i = 0; i < actual_message_cnt; i++) {
-                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &sreqs[i]);
+                    MPI_Isend(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_node_numa_comm, &sreqs[i]);
                 }
                 MPI_Waitall(actual_message_cnt, sreqs, MPI_STATUSES_IGNORE);
                 free(sreqs);
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
                         }
                         rreqs[sender_cnt++] = (MPI_Request*) malloc(sizeof(MPI_Request) * actual_message_cnt);
                         for (int i = 0; i < actual_message_cnt; i++)
-                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_numa_rank, &rreqs[sender_cnt-1][i]);
+                            MPI_Irecv(inter_local_buf + i * block, block, MPI_CHAR, inter_peer, 0, inter_node_numa_comm, &rreqs[sender_cnt-1][i]);
                     }   
                 }
                     
